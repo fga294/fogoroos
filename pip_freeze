@@ -1,0 +1,8 @@
+beautifulsoup4==4.11.1
+bs4==0.0.1
+dnspython==2.2.1
+html-parser==0.2
+lxml==4.8.0
+ply==3.11
+pymongo==4.1.1
+soupsieve==2.3.2.post1
