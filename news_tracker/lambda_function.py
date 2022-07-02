@@ -1,37 +1,52 @@
-from urllib import request
-from urllib.request import urlopen
-import urllib.error
-import re
-import os
-from bs4 import BeautifulSoup
 import datetime
-import pymongo
+import os
+import re
+import sys
+from urllib.request import urlopen
+
+import pymysql
+from bs4 import BeautifulSoup
 
 
 def lambda_handler(event, context):
-    # TODO implement
-    db_string = os.environ["DB_URI"]
-    client = pymongo.MongoClient(db_string)
-    db = client.brasileirao
-    collection = db["news_tracker"]
     news_date = datetime.datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
-    print("Running...")
     url = ("https://www.globo.com/")
-    try:
-        html = urlopen(url)
-    except urllib.error.HTTPError as e:
-        return e
+    html = urlopen(url)
     soup = BeautifulSoup(html, 'html.parser')
     type(soup)
     all_links = soup.find_all(href=re.compile(
         "https://ge.globo.com/futebol/times/"))
+
+    try:
+        conn = pymysql.connect(
+            user=os.environ["DB_USERNAME"],
+            password=os.environ["DB_SECRET"],
+            host=os.environ["DB_HOST"],
+            port=3306,
+            database=os.environ["DATABASE"]
+
+        )
+    except pymysql.Error as e:
+        print(f"Error connecting to FogoroosDB Platform: {e}")
+        sys.exit(1)
+
+    cur = conn.cursor()
+
     for link in all_links:
         news_url = link.get("href")
         team = link.get("href").split("/")[5]
-        existing_news = collection.find_one({"news_url": {"$eq": news_url}})
-        if not(existing_news):
-            collection.insert_one(
-                {"team": team, "news_date": news_date, "news_url": news_url})
-            print(f' {team} has been added to the database')
+        cur.execute(
+            "SELECT news_url FROM news_tracker WHERE news_url=%s", (news_url,))
+        existing_record = cur.fetchone()
+        if existing_record is not None:
+            print(f' News already captured: {team} | {news_date}')
         else:
-            print(f' Skipped teams: {team}')
+            try:
+                cur.execute(
+                    "INSERT INTO news_tracker (team, news_date, news_url) VALUES (%s, %s, %s)", (team, news_date, news_url))
+            except pymysql.Error as e:
+                print(f"Error adding team: {e}")
+
+            conn.commit()
+            print(f"Last Inserted news: {team} | {news_date}")
+        conn.close()
