@@ -1,0 +1,41 @@
+/* Botafogo Theme: Black/White stripes, Lone Star accents */
+:root {
+  --black: #000;
+  --white: #fff;
+  --gray: #333;
+  --star-gold: #FFD700;
+  --stripe-bg: repeating-linear-gradient(90deg, var(--black) 0%, var(--black) 10%, var(--white) 10%, var(--white) 20%);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Arial', sans-serif; line-height: 1.6; color: var(--black); background: var(--white); }
+header { background: var(--stripe-bg); padding: 1rem 0; position: sticky; top: 0; z-index: 10; }
+nav ul { list-style: none; display: flex; justify-content: center; gap: 2rem; }
+nav a { color: var(--white); text-decoration: none; font-weight: bold; padding: 0.5rem 1rem; transition: background 0.3s; }
+nav a:hover { background: var(--black); border-radius: 5px; }
+
+.hero {
+  height: 100vh;
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Est%C3%A1dio_Ol%C3%ADmpico_Nilton_Santos_2016.jpg/1280px-Est%C3%A1dio_Ol%C3%ADmpico_Nilton_Santos_2016.jpg') center/cover;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--white);
+}
+.hero h1 { font-size: 4rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px var(--black); }
+.hero p { font-size: 1.5rem; margin-bottom: 2rem; }
+.btn-join { background: var(--star-gold); color: var(--black); padding: 1rem 2rem; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.3s; text-decoration: none; display: inline-block; }
+.btn-join:hover { transform: scale(1.05); }
+
+section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+h2 { font-size: 2.5rem; margin-bottom: 2rem; text-align: center; position: relative; }
+h2::after { content: '⭐'; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); font-size: 2rem; }
+
+.calendar { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.game { background: var(--stripe-bg); padding: 1rem; border-radius: 10px; }
+.game h4 { font-weight: bold; }
+.date { font-size: 0.9rem; color: var(--gray); }
+
+.history p { text-align: justify; font-size: 1.1rem; }
+
+footer { background: var(--black); color: var(--white); text-align: center; padding: 2rem; }
+
+/* Modern responsive */
+@media (max-width: 768px) { .hero h1 { font-size: 2.5rem; } nav ul { flex-direction: column; } }
