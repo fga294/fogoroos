@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>U-14 Dashboard - Fogoroos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black text-white min-h-screen p-8">
+  <nav class="mb-12">
+    <a href="index.html" class="text-orange-400 hover:text-orange-300"><- Home</a>
+  </nav>
+  <h1 class="text-5xl font-black mb-12 bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">U-14 Stats Dashboard</h1>
+  <div id="stats" class="grid md:grid-cols-3 gap-6 mb-12">
+    <div class="bg-white/10 p-8 rounded-2xl">
+      <h2 class="text-3xl font-bold mb-4"><span id="match-count">Loading...</span> Matches</h2>
+    </div>
+    <div class="bg-white/10 p-8 rounded-2xl">
+      <h2 class="text-3xl font-bold mb-4"><span id="player-count">Loading...</span> Players</h2>
+    </div>
+    <div class="bg-white/10 p-8 rounded-2xl">
+      <h2 class="text-3xl font-bold mb-4"><span id="event-count">Loading...</span> Events</h2>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-2 gap-8">
+    <div>
+      <h2 class="text-3xl font-bold mb-6">Recent Matches</h2>
+      <div id="recent-matches">Loading...</div>
+    </div>
+    <div>
+      <h2 class="text-3xl font-bold mb-6">Top Fitness</h2>
+      <div id="top-fitness">Loading...</div>
+    </div>
+  </div>
+  <script>
+    const API_BASE = 'http://127.0.0.1:8001/api';
+    async function loadData() {
+      try {
+        const [playersRes, matchesRes, eventsRes, fitnessRes] = await Promise.all([
+          fetch('${API_BASE}/players'),
+          fetch('${API_BASE}/matches'),
+          fetch('${API_BASE}/match-events'),
+          fetch('${API_BASE}/fitness')
+        ]);
+        const players = await playersRes.json();
+        const matches = await matchesRes.json();
+        const events = await eventsRes.json();
+        const fitness = await fitnessRes.json();
+        document.getElementById('player-count').textContent = players.length;
+        document.getElementById('match-count').textContent = matches.length;
+        document.getElementById('event-count').textContent = events.length;
+        // Recent matches
+        document.getElementById('recent-matches').innerHTML = matches.slice(0,3).map(m => 
+          `<div class="bg-white/10 p-6 rounded-xl mb-4">${m.opponent} (${m.played_on}): ${m.result} ${m.goals_for}-${m.goals_against}</div>`
+        ).join('');
+        // Top fitness
+        const topFitness = [...fitness].sort((a,b) => b.score - a.score).slice(0,5);
+        document.getElementById('top-fitness').innerHTML = topFitness.map(f => 
+          `<div class="bg-white/10 p-4 rounded-xl mb-2 flex justify-between"><span>Player ${f.player_id}</span><span class="font-bold">${f.score}</span></div>`
+        ).join('');
+      } catch (e) {
+        console.error('API error:', e);
+      }
+    }
+    loadData();
+  </script>
+</body>
+</html>
